@@ -10,15 +10,15 @@ test('model check lists only generateContent Flash model names and keeps credent
       assert.equal(options.headers['x-goog-api-key'], 'fixture-not-a-real-key');
       assert.equal(url.searchParams.has('key'), false);
       return { ok: true, json: async () => ({ models: [
-        { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
-        { name: 'models/gemini-2.5-pro', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-3.5-flash', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-3.5-pro', supportedGenerationMethods: ['generateContent'] },
         { name: 'models/gemini-embedding', supportedGenerationMethods: ['embedContent'] }
       ] }) };
     } })({ method: 'GET' }, res);
     assert.equal(res.statusCode, 200);
     assert.equal(res.data.configured_model_available, true);
-    assert.equal(res.data.app_revision, 'gemini-stable-api-fallback-v2');
-    assert.deepEqual(res.data.available_flash_models, ['gemini-2.5-flash']);
+    assert.equal(res.data.app_revision, 'gemini-3.5-flash-v1');
+    assert.deepEqual(res.data.available_flash_models, ['gemini-3.5-flash']);
     assert.doesNotMatch(JSON.stringify(res.data), /fixture-not-a-real-key/);
   } finally { if (previous === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = previous; }
 });
