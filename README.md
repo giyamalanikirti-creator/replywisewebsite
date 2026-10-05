@@ -117,3 +117,5 @@ In Vercel, open the project's Logs tab, submit a message, and find the line begi
 - Timeout/network codes: check provider availability and networking.
 
 Logs identify the failure; they do not establish that missing credentials, quota or hosted database configuration have been fixed. Never share secret values or full provider bodies when seeking help.
+
+Gemini generation initially uses the `v1beta` API, matching the official JavaScript client. On a 404 only, it retries once against the stable `v1` API with the same model, system prompt, JSON schema and 200-token cap. Both requests share one 35-second deadline. Other provider statuses are not retried. This compatibility fallback does not prove that a provider-side resource issue is resolved.

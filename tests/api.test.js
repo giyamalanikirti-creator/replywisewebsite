@@ -126,3 +126,26 @@ test('Gemini 404 diagnostics distinguish model errors from non-Google responses 
   const unknown = await geminiHttpError({ status: 404, json: async () => ({ error: { status: 'private-secret', message: 'private-secret' } }) });
   assert.equal(unknown.providerReason, 'UNKNOWN');
 });
+
+test('retries a v1beta 404 once on stable v1 with identical safety settings and shared deadline', async () => {
+  const previous = process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY = 'test-only-key';
+  const calls = [];
+  try {
+    const generated = await generate(body, async (url, options) => {
+      calls.push({ url, options });
+      if (calls.length === 1) return { ok: false, status: 404 };
+      return { ok: true, status: 200, json: async () => ({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(result) }] } }] }) };
+    });
+    assert.equal(calls.length, 2);
+    assert.match(calls[0].url, /\/v1beta\/models\//);
+    assert.match(calls[1].url, /\/v1\/models\//);
+    assert.equal(calls[0].options.body, calls[1].options.body);
+    assert.equal(calls[0].options.signal, calls[1].options.signal);
+    assert.equal(JSON.parse(calls[1].options.body).generationConfig.maxOutputTokens, 200);
+    assert.equal(generated.result.reply, result.reply);
+    let count = 0;
+    await assert.rejects(generate(body, async () => { count++; return { ok: false, status: 429 }; }), error => error.providerStatus === 429);
+    assert.equal(count, 1);
+  } finally { if (previous === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = previous; }
+});
