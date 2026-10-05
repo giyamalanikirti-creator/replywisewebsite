@@ -17,6 +17,7 @@ test('model check lists only generateContent Flash model names and keeps credent
     } })({ method: 'GET' }, res);
     assert.equal(res.statusCode, 200);
     assert.equal(res.data.configured_model_available, true);
+    assert.equal(res.data.app_revision, 'gemini-stable-api-fallback-v2');
     assert.deepEqual(res.data.available_flash_models, ['gemini-2.5-flash']);
     assert.doesNotMatch(JSON.stringify(res.data), /fixture-not-a-real-key/);
   } finally { if (previous === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = previous; }

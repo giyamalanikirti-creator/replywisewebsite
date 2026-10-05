@@ -1,3 +1,4 @@
+import { runtimeInfo } from '../lib/runtime.js';
 import { DEFAULT_MODEL } from '../lib/gemini.js';
 import { send } from '../lib/http.js';
 import { IntegrationError, reportFailure } from '../lib/diagnostics.js';
@@ -23,7 +24,7 @@ export function createHandler({ fetcher = fetch } = {}) {
         token = data.nextPageToken;
         if (!token) break;
       }
-      return send(res, 200, { configured_model: configured, configured_model_available: available.includes(configured), available_flash_models: available.filter(name => name.includes('flash')), list_complete: !token });
+      return send(res, 200, { ...runtimeInfo(), configured_model: configured, configured_model_available: available.includes(configured), available_flash_models: available.filter(name => name.includes('flash')), list_complete: !token });
     } catch (error) {
       reportFailure('gemini_model_check', error);
       return send(res, 503, { error: 'Could not check Gemini models. Check the server logs for the provider status.' });
