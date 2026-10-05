@@ -5,6 +5,7 @@ import { createHandler as statsHandler } from '../api/stats.js';
 import { validateInput, validateOutput } from '../lib/validation.js';
 import { generate, SYSTEM_PROMPT } from '../lib/gemini.js';
 import { sanitize } from '../lib/sanitize.js';
+import { IntegrationError, reportFailure } from '../lib/diagnostics.js';
 const visitor = 'f1234567-1234-4123-8123-123456789abc';
 const body = { visitor_id: visitor, customer_message: 'Where is my order?', business_type: 'Clothing / Fashion' };
 const result = { detected_language: 'English', request_type: 'Order status', reply: 'Let me check your order details and share a confirmed update.', follow_up_action: 'Check order tracking.' };
@@ -97,7 +98,21 @@ test('Gemini request is server-side, structured, token limited and guarded', asy
       return { ok: true, json: async () => ({ candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(result) }] } }], usageMetadata: { promptTokenCount: 300, candidatesTokenCount: 70 } }) };
     });
     assert.equal(generation.input_tokens, 300); assert.equal(generation.output_tokens, 70);
-    await assert.rejects(generate(body, async () => ({ ok: true, json: async () => ({ candidates: [{ finishReason: 'MAX_TOKENS' }] }) })), /Incomplete/);
-    await assert.rejects(generate(body, async () => ({ ok: false })), /failed/);
+    await assert.rejects(generate(body, async () => ({ ok: true, json: async () => ({ candidates: [{ finishReason: 'MAX_TOKENS' }] }) })), error => error.code === 'GEMINI_TRUNCATED');
+    await assert.rejects(generate(body, async () => ({ ok: false })), error => error.code === 'GEMINI_HTTP');
   } finally { delete process.env.GEMINI_API_KEY; }
+});
+
+test('diagnostic logs contain controlled codes only, never raw secrets or customer data', () => {
+  const original = console.error;
+  const logs = [];
+  console.error = line => logs.push(line);
+  try {
+    reportFailure('gemini_generation', new IntegrationError('GEMINI_HTTP', 429));
+    reportFailure('database_save', new Error('secret-key-and-customer-content'));
+    reportFailure('database_save', new IntegrationError('untrusted-sensitive-code', 401));
+    assert.match(logs[0], /code=GEMINI_HTTP provider_status=429/);
+    assert.match(logs[1], /code=INTEGRATION_FAILURE/);
+    assert.doesNotMatch(logs.join(' '), /secret-key|customer-content|untrusted-sensitive/);
+  } finally { console.error = original; }
 });

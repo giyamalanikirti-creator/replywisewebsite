@@ -100,3 +100,20 @@ npm run test:live
 ## Current verification limits
 
 Live provider calls, SQL execution in your Supabase project, exact Task 3 visual comparison, GitHub publication, and Vercel deployment require external setup. Local tests and browser checks do not establish that these steps have succeeded. Follow the steps above, then run the live check and review its actual outputs before submitting the assignment.
+
+## Troubleshooting generation failures
+
+In Vercel, open the project's Logs tab, submit a message, and find the line beginning `[ReplyWise]`. It contains only a controlled failure code, operation stage and HTTP status—not provider response bodies, prompts, keys or customer content.
+
+- `SUPABASE_CONFIG`: missing/invalid project URL or missing service key. Add variables to the correct Vercel environment and redeploy.
+- `SUPABASE_HTTP` status 401/403: check server-side service-role credentials and SQL permissions.
+- `SUPABASE_HTTP` status 404: check the project URL and run the complete SQL file, including RPC functions.
+- `GEMINI_CONFIG`: missing API key or invalid model setting. Use `GEMINI_MODEL=gemini-2.5-flash` and redeploy.
+- `GEMINI_HTTP` status 400/403: check key permissions/model support in Google AI Studio.
+- `GEMINI_HTTP` status 429: check Gemini quota and billing; retry only after the limit clears or quota is fixed.
+- `GEMINI_HTTP` status 404: check model availability.
+- `GEMINI_TRUNCATED`: response exceeded the required 200-token output limit. Retry with a shorter message; do not silently raise the assignment's limit.
+- `GEMINI_BLOCKED`: no completed candidate returned; try a customer-service message.
+- Timeout/network codes: check provider availability and networking.
+
+Logs identify the failure; they do not establish that missing credentials, quota or hosted database configuration have been fixed. Never share secret values or full provider bodies when seeking help.
