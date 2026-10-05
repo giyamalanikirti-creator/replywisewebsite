@@ -5,7 +5,7 @@ import { createHandler as statsHandler } from '../api/stats.js';
 import { validateInput, validateOutput } from '../lib/validation.js';
 import { generate, SYSTEM_PROMPT } from '../lib/gemini.js';
 import { sanitize } from '../lib/sanitize.js';
-import { IntegrationError, reportFailure } from '../lib/diagnostics.js';
+import { IntegrationError, reportFailure, geminiHttpError } from '../lib/diagnostics.js';
 const visitor = 'f1234567-1234-4123-8123-123456789abc';
 const body = { visitor_id: visitor, customer_message: 'Where is my order?', business_type: 'Clothing / Fashion' };
 const result = { detected_language: 'English', request_type: 'Order status', reply: 'Let me check your order details and share a confirmed update.', follow_up_action: 'Check order tracking.' };
@@ -115,4 +115,14 @@ test('diagnostic logs contain controlled codes only, never raw secrets or custom
     assert.match(logs[1], /code=INTEGRATION_FAILURE/);
     assert.doesNotMatch(logs.join(' '), /secret-key|customer-content|untrusted-sensitive/);
   } finally { console.error = original; }
+});
+
+test('Gemini 404 diagnostics distinguish model errors from non-Google responses without revealing provider text', async () => {
+  const error = await geminiHttpError({ status: 404, json: async () => ({ error: { status: 'NOT_FOUND', message: 'models/test is not found. sensitive-text' } }) });
+  assert.equal(error.providerReason, 'MODEL_UNAVAILABLE');
+  assert.doesNotMatch(error.message, /sensitive-text/);
+  const nonGoogle = await geminiHttpError({ status: 404, json: async () => { throw new Error('HTML response'); } });
+  assert.equal(nonGoogle.providerReason, 'NON_GOOGLE_RESPONSE');
+  const unknown = await geminiHttpError({ status: 404, json: async () => ({ error: { status: 'private-secret', message: 'private-secret' } }) });
+  assert.equal(unknown.providerReason, 'UNKNOWN');
 });
