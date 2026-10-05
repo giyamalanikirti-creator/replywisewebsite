@@ -88,7 +88,7 @@ test('Gemini request is server-side, structured, token limited and guarded', asy
   process.env.GEMINI_API_KEY = 'test-only-key';
   try {
     const generation = await generate(body, async (url, options) => {
-      assert.match(url, /gemini-3.5-flash:generateContent/);
+      assert.match(url, /gemini-3.5-flash-lite:generateContent/);
       const request = JSON.parse(options.body);
       assert.equal(request.generationConfig.maxOutputTokens, 200);
       assert.deepEqual(request.generationConfig.thinkingConfig, { thinkingLevel: 'MINIMAL' });

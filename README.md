@@ -31,8 +31,8 @@ The local server serves the page and both real API handlers on port 3000. Withou
 
 1. Open https://aistudio.google.com/apikey and create a Gemini API key for a Google project.
 2. Ensure the project can use Gemini API (quota and billing requirements depend on your account).
-3. Set `GEMINI_API_KEY` on the server. The default `GEMINI_MODEL` is **gemini-3.5-flash**, also defined in `lib/gemini.js`.
-4. The implementation requests structured JSON with **maxOutputTokens: 200**, requests the minimum thinking level for Gemini 3.5 Flash, and validates all four returned fields. Truncated, blocked, or malformed output produces a clean error, not a partial reply. If you change the model, verify support for `thinkingConfig` and the schema.
+3. Set `GEMINI_API_KEY` on the server. The default `GEMINI_MODEL` is **gemini-3.5-flash-lite**, also defined in `lib/gemini.js`.
+4. The implementation requests structured JSON with **maxOutputTokens: 200**, requests the minimum thinking level for Gemini 3.5 Flash Lite, and validates all four returned fields. Truncated, blocked, or malformed output produces a clean error, not a partial reply. If you change the model, verify support for `thinkingConfig` and the schema.
 
 ## Local environment
 
@@ -40,7 +40,7 @@ The local server serves the page and both real API handlers on port 3000. Withou
 
 ```dotenv
 GEMINI_API_KEY=
-GEMINI_MODEL=gemini-3.5-flash
+GEMINI_MODEL=gemini-3.5-flash-lite
 SUPABASE_URL=
 SUPABASE_SERVICE_KEY=
 ```
@@ -108,7 +108,7 @@ In Vercel, open the project's Logs tab, submit a message, and find the line begi
 - `SUPABASE_CONFIG`: missing/invalid project URL or missing service key. Add variables to the correct Vercel environment and redeploy.
 - `SUPABASE_HTTP` status 401/403: check server-side service-role credentials and SQL permissions.
 - `SUPABASE_HTTP` status 404: check the project URL and run the complete SQL file, including RPC functions.
-- `GEMINI_CONFIG`: missing API key or invalid model setting. Use `GEMINI_MODEL=gemini-3.5-flash` and redeploy.
+- `GEMINI_CONFIG`: missing API key or invalid model setting. Use `GEMINI_MODEL=gemini-3.5-flash-lite` and redeploy.
 - `GEMINI_HTTP` status 400/403: check key permissions/model support in Google AI Studio.
 - `GEMINI_HTTP` status 429: check Gemini quota and billing; retry only after the limit clears or quota is fixed.
 - `GEMINI_HTTP` status 404: check model availability.
