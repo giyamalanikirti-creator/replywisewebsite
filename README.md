@@ -124,7 +124,7 @@ Gemini generation initially uses the `v1beta` API, matching the official JavaScr
 
 The landing page's **Connect on WhatsApp** button now opens a functional **dummy-data prototype**. It shows three sample customer messages, loads preset sample drafts, supports editing and review approval, simulates sending, and lets you reset/disconnect the demo. All interactions stay in browser memory. The prototype makes no network calls, sends no real messages, creates no Supabase rows, and does not consume Gemini quota or the main tool's five-reply allowance. Refreshing the page resets the prototype. No WhatsApp/Meta credentials or owner access key are needed.
 
-This simulation is explicitly labelled **Prototype · dummy data**. The main **Generate my reply** tool and usage statistics continue to use the real Gemini/Supabase APIs.
+The interface uses neutral inbox and reply-preview wording. The WhatsApp flow remains local simulation; it is not a real account connection or message delivery. The main **Generate my reply** tool and usage statistics continue to use the real Gemini/Supabase APIs.
 
 The live Cloud API backend below remains in the source for future use but is not invoked by the current prototype. Its SQL/credentials are optional and are not required to try the button. Automated browser checks verify zero WhatsApp API calls and no additional Gemini calls during the prototype interactions.
 

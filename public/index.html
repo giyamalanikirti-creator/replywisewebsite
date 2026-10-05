@@ -53,12 +53,11 @@
     <section class="container whatsapp-section" id="whatsapp" aria-labelledby="whatsapp-heading">
       <div class="section-intro"><div><p class="eyebrow">A LOOK AT WHAT'S NEXT</p><h2 id="whatsapp-heading">Bring ReplyWise to WhatsApp<span class="purple">.</span></h2></div><p>Draft thoughtfully.<br>Review, then send.</p></div>
       <div class="whatsapp-card">
-        <div class="whatsapp-intro"><span class="feature-icon" aria-hidden="true">↔</span><div><h3>Your replies, right where you work.</h3><p>Explore how ReplyWise could help with your WhatsApp customer messages. Try connecting a sample business and reviewing a reply.</p><span class="prototype-badge">Prototype · dummy data</span></div></div>
-        <button id="wa-prototype-connect" type="button" class="button" aria-expanded="false" aria-controls="wa-connected">Connect on WhatsApp →</button>
-        <p class="field-help wa-demo-note">Demo only. No real account is connected and no messages are sent.</p>
+        <div class="whatsapp-intro"><span class="feature-icon" aria-hidden="true">↔</span><div><h3>Your replies, right where you work.</h3><p>Explore a WhatsApp reply workflow. Review and edit customer replies in one place.</p></div></div>
+        <button id="wa-connect-button" type="button" class="button" aria-expanded="false" aria-controls="wa-connected">Connect on WhatsApp →</button>
         <div id="wa-connected" hidden>
-          <div class="wa-owner-header"><p id="wa-state" class="wa-state" role="status"></p><button id="wa-disconnect" class="outline-button" type="button">Disconnect demo</button></div>
-          <div class="wa-toolbar"><p class="field-help">Sample business · Clothing / Fashion · 3 dummy messages</p><button id="wa-reset-demo" class="outline-button" type="button">Reset demo</button></div>
+          <div class="wa-owner-header"><p id="wa-state" class="wa-state" role="status"></p><button id="wa-disconnect" class="outline-button" type="button">Close inbox</button></div>
+          <div class="wa-toolbar"><p class="field-help">Clothing / Fashion · 3 messages</p><button id="wa-reset-demo" class="outline-button" type="button">Reset inbox</button></div>
           <div id="wa-inbox" class="wa-inbox" aria-live="polite"></div>
         </div>
         <p id="wa-notice" class="wa-notice" role="status" hidden></p>
