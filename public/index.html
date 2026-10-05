@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn customer queries, complaints and follow-ups into calm, ready-to-send replies. Built for small businesses.">
+  <meta name="theme-color" content="#f8f6f0"><title>ReplyWise — Customer messages come messy. Your replies don't have to.</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><script src="/script.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#try-it">Skip to the reply tool</a>
+  <header class="nav-wrap"><nav class="container nav" aria-label="Main navigation">
+    <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">r<span>✦</span></span>ReplyWise<span class="brand-dot">.</span></a>
+    <div class="nav-links"><a href="#how-it-works">How it works</a><a href="#why-replywise">Why ReplyWise</a><a class="button small" href="#try-it">Try ReplyWise <span aria-hidden="true">→</span></a></div>
+  </nav></header>
+  <main id="home">
+    <section class="hero container">
+      <p class="eyebrow"><span class="status-dot"></span> A little help for your everyday replies</p>
+      <h1>Customer messages<br>come messy.<br><span>Your replies don't have to.</span></h1>
+      <p class="hero-copy">ReplyWise turns customer queries, complaints and follow-ups into professional, ready-to-send replies in seconds.</p>
+      <a class="button" href="#try-it">Try ReplyWise <span aria-hidden="true">→</span></a>
+      <p class="microcopy">Built for small businesses. No sign-up needed.</p>
+      <div class="channels" aria-label="For customer messages on"><span>WhatsApp</span><span>Instagram</span><span>Facebook</span><span>SMS & more</span></div>
+    </section>
+    <section class="container demo-section" id="try-it" aria-labelledby="demo-heading">
+      <div class="section-intro"><div><p class="eyebrow">LESS OVERTHINKING. BETTER REPLIES.</p><h2 id="demo-heading">Reply to my customer<span class="purple">.</span></h2></div><p>A messy message in.<br>A thoughtful reply out.</p></div>
+      <div class="demo-card">
+        <form id="reply-form" class="input-panel" novalidate>
+          <div class="panel-title"><span class="step-badge">01</span><h3>Your customer's message</h3></div>
+          <label for="customer-message">Customer message</label><p id="message-help" class="field-help">Paste the message exactly as your customer sent it.</p>
+          <textarea id="customer-message" name="customer_message" rows="5" maxlength="1000" aria-describedby="message-help privacy-note char-count" placeholder="Bhai 4 din ho gaye order abhi tak nahi aaya 😡 kya scene hai?"></textarea>
+          <div class="field-bottom"><button class="text-button" id="use-example" type="button">Try an example →</button><span id="char-count">0 / 1,000</span></div>
+          <p id="privacy-note" class="privacy-note">For privacy, avoid pasting phone numbers, email addresses or other sensitive customer information. Messages are processed by Gemini and saved in Supabase with obvious contact details removed.</p>
+          <label for="business-type">Your business</label><select id="business-type" name="business_type"><option value="">Choose your business type</option><option>Clothing / Fashion</option><option>Beauty / Salon</option><option>Food / Restaurant</option><option>Home Business</option><option>Electronics</option><option>Professional Services</option><option>Other</option></select>
+          <button class="button generate" id="generate-button" type="submit">Generate my reply <span aria-hidden="true">✦</span></button>
+          <p id="usage" class="usage" hidden></p><p id="form-error" class="error" role="alert" hidden></p>
+        </form>
+        <div class="output-panel" aria-busy="false" id="output-panel">
+          <div class="panel-title"><span class="step-badge">02</span><h3>A reply you can feel good about</h3></div>
+          <div id="empty-result" class="empty-result"><span class="empty-icon" aria-hidden="true">✦</span><h4>Your next reply starts here.</h4><p>Paste a customer message and tell us about your business. We'll help you find the right words.</p><div class="empty-tags"><span>Same language</span><span>Calmer tone</span><span>One next step</span></div></div>
+          <p id="loading-result" class="loading" role="status" hidden>Writing your reply…</p>
+          <div id="result" aria-live="polite" hidden>
+            <div class="result-meta"><div><span class="meta-label">Detected language</span><strong id="detected-language"></strong></div><div><span class="meta-label">Request type</span><strong id="request-type"></strong></div></div>
+            <div class="reply-box"><span class="meta-label">Suggested reply</span><p id="generated-reply"></p><button type="button" id="copy-reply" class="outline-button">Copy reply <span aria-hidden="true">⧉</span></button><span id="copy-status" role="status"></span></div>
+            <div class="next-step"><span aria-hidden="true">→</span><div><span class="meta-label">Next step</span><p id="follow-up"></p></div></div>
+            <button type="button" id="reset" class="text-button">Try another message →</button>
+          </div>
+          <div class="trust-note"><span aria-hidden="true">✓</span><p><strong>ReplyWise drafts the message. You verify the facts.</strong><br>No made-up delivery dates, discounts or refund promises.</p></div>
+        </div>
+      </div>
+      <div class="stats-strip" aria-label="Live product usage"><div><strong id="shops-stat">—</strong><span>SHOPS SERVED</span></div><div><strong id="languages-stat">—</strong><span>LANGUAGES</span></div><div class="common-stat"><strong id="common-stat">—</strong><span>MOST COMMON REQUEST</span></div><p id="stats-status" role="status">Loading live usage…</p></div>
+      <p class="data-note">Live usage from our demo. “Shops served” counts anonymous browsers, not verified businesses.</p>
+    </section>
+    <section class="container section" id="how-it-works"><p class="eyebrow">THREE SMALL STEPS</p><h2>From “what do I say?”<br>to ready to send.</h2><div class="three-grid steps"><article><span class="number">01</span><h3>Paste the message</h3><p>Drop in the customer message exactly as received. Messy spelling and mixed languages welcome.</p></article><article><span class="number">02</span><h3>Add business context</h3><p>Tell ReplyWise what kind of business you run. Just enough context to get the tone right.</p></article><article><span class="number">03</span><h3>Send a better reply</h3><p>Get a concise response and one practical next step. Check the facts, copy, and make it yours.</p></article></div></section>
+    <section class="why-section" id="why-replywise"><div class="container section"><p class="eyebrow">A HELPFUL DRAFT. A HUMAN DECISION.</p><h2>Good replies build trust.<br>Let's keep it that way.</h2><div class="three-grid principles"><article><span class="feature-icon" aria-hidden="true">अ / A</span><h3>Same language</h3><p>English, Hindi, Hinglish and regional languages. Meet your customer in the words they use.</p></article><article><span class="feature-icon" aria-hidden="true">♡</span><h3>Right tone</h3><p>An emotional message doesn't need an emotional reply. Stay calm, clear and professional.</p></article><article><span class="feature-icon" aria-hidden="true">✓</span><h3>No made-up promises</h3><p>If something needs checking, ReplyWise tells you to verify it. Your business facts stay yours.</p></article></div></div></section>
+    <section class="container section example-section"><div><p class="eyebrow">SAME MESSAGE. BETTER CONVERSATION.</p><h2>A little clarity<br>goes a long way.</h2><p class="section-copy">You know your business.<br>We'll help you find the words.</p><span class="example-label">Illustrative example · not a live generation</span></div><div class="conversation"><div class="customer-bubble"><span class="meta-label">Customer</span><p>“Bhai 4 din ho gaye order abhi tak nahi aaya 😡 kya scene hai?”</p></div><div class="business-bubble"><span class="meta-label">ReplyWise draft</span><p>“Sorry, delay frustrating hai. Main order/courier status check karke aapko confirmed update share karunga. Bina verify kiye delivery date promise nahi karna chahta.”</p></div><p class="example-action"><strong>Next step →</strong> Check courier tracking and send a confirmed update.</p></div></section>
+    <section class="container final-cta"><span aria-hidden="true">✦</span><h2>Your next customer message<br>is probably already waiting.</h2><p>Reply smarter with ReplyWise.</p><a class="button" href="#try-it">Try ReplyWise <span aria-hidden="true">→</span></a></section>
+  </main>
+  <footer class="container"><div><a href="#home" class="brand">ReplyWise<span class="brand-dot">.</span></a><p>AI-powered customer replies for small businesses.</p></div><p>Demo product — always verify business facts before sending.</p></footer>
+</body></html>
