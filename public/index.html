@@ -51,20 +51,17 @@
       <p class="data-note">Live usage from our demo. “Shops served” counts demo identities and connected accounts, not verified businesses.</p>
     </section>
     <section class="container whatsapp-section" id="whatsapp" aria-labelledby="whatsapp-heading">
-      <div class="section-intro"><div><p class="eyebrow">YOUR MESSAGES. STILL YOUR CALL.</p><h2 id="whatsapp-heading">Bring ReplyWise to WhatsApp<span class="purple">.</span></h2></div><p>Draft thoughtfully.<br>Review, then send.</p></div>
+      <div class="section-intro"><div><p class="eyebrow">A LOOK AT WHAT'S NEXT</p><h2 id="whatsapp-heading">Bring ReplyWise to WhatsApp<span class="purple">.</span></h2></div><p>Draft thoughtfully.<br>Review, then send.</p></div>
       <div class="whatsapp-card">
-        <div class="whatsapp-intro"><span class="feature-icon" aria-hidden="true">↔</span><div><h3>Your WhatsApp Business, connected.</h3><p>Receive new customer text messages here, get a ReplyWise draft, and send only after you approve it. This connection is private to the website owner.</p><a class="text-button" href="https://github.com/giyamalanikirti-creator/replywisewebsite/blob/main/README.md#whatsapp-business-connection-owner-only" target="_blank" rel="noopener noreferrer">Connection setup guide →</a></div></div>
-        <form id="wa-login" class="wa-login" novalidate><label for="wa-password">Owner access key</label><div class="wa-unlock-row"><input id="wa-password" type="password" autocomplete="current-password" maxlength="512" placeholder="Enter your private owner access key"><button class="button" type="submit">Unlock connection</button></div><p class="field-help">Only the business owner can view messages or send replies. Your customers do not need an account.</p></form>
-        <div id="wa-owner" hidden>
-          <div class="wa-owner-header"><p id="wa-state" class="wa-state" role="status"></p><button id="wa-lock" class="outline-button" type="button">Lock connection</button></div>
-          <form id="wa-connect" novalidate><label for="wa-business">Your business</label><select id="wa-business"><option value="">Choose your business type</option><option>Clothing / Fashion</option><option>Beauty / Salon</option><option>Food / Restaurant</option><option>Home Business</option><option>Electronics</option><option>Professional Services</option><option>Other</option></select><button class="button" type="submit">Connect WhatsApp Business →</button><p class="field-help">Uses the business account you configured in your server settings. Keep your Meta access token private.</p></form>
-          <div id="wa-connected" hidden>
-            <div class="wa-toolbar"><p id="wa-quota" class="field-help"></p><div><button id="wa-refresh" class="outline-button" type="button">Refresh messages</button><button id="wa-disconnect" class="text-button" type="button">Disconnect</button></div></div>
-            <p class="field-help">New text messages only. Existing chat history isn't imported. Replies are available within 24 hours of a customer's message.</p>
-            <div id="wa-inbox" class="wa-inbox" aria-live="polite"></div>
-          </div>
+        <div class="whatsapp-intro"><span class="feature-icon" aria-hidden="true">↔</span><div><h3>Your replies, right where you work.</h3><p>Explore how ReplyWise could help with your WhatsApp customer messages. Try connecting a sample business and reviewing a reply.</p><span class="prototype-badge">Prototype · dummy data</span></div></div>
+        <button id="wa-prototype-connect" type="button" class="button" aria-expanded="false" aria-controls="wa-connected">Connect on WhatsApp →</button>
+        <p class="field-help wa-demo-note">Demo only. No real account is connected and no messages are sent.</p>
+        <div id="wa-connected" hidden>
+          <div class="wa-owner-header"><p id="wa-state" class="wa-state" role="status"></p><button id="wa-disconnect" class="outline-button" type="button">Disconnect demo</button></div>
+          <div class="wa-toolbar"><p class="field-help">Sample business · Clothing / Fashion · 3 dummy messages</p><button id="wa-reset-demo" class="outline-button" type="button">Reset demo</button></div>
+          <div id="wa-inbox" class="wa-inbox" aria-live="polite"></div>
         </div>
-        <p id="wa-error" class="error" role="alert" hidden></p><p id="wa-notice" class="wa-notice" role="status" hidden></p>
+        <p id="wa-notice" class="wa-notice" role="status" hidden></p>
       </div>
     </section>
     <section class="container section" id="how-it-works"><p class="eyebrow">THREE SMALL STEPS</p><h2>From “what do I say?”<br>to ready to send.</h2><div class="three-grid steps"><article><span class="number">01</span><h3>Paste the message</h3><p>Drop in the customer message exactly as received. Messy spelling and mixed languages welcome.</p></article><article><span class="number">02</span><h3>Add business context</h3><p>Tell ReplyWise what kind of business you run. Just enough context to get the tone right.</p></article><article><span class="number">03</span><h3>Send a better reply</h3><p>Get a concise response and one practical next step. Check the facts, copy, and make it yours.</p></article></div></section>

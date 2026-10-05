@@ -61,33 +61,16 @@ try {
   await page.locator('#form-error').filter({ hasText: 'all 5' }).waitFor();
   await page.waitForFunction(() => document.getElementById('generate-button').disabled);
   assert.equal(await page.locator('#usage').textContent(), '5 of 5 free demo replies used');
-  let unlocked = false, waConnected = false, waDraft = false, waSent = false;
-  let sendCalls = 0;
-  const waId = 'f1234567-1234-4123-8123-123456789abc';
-  await page.route('**/api/whatsapp**', async route => {
-    const url = new URL(route.request().url());
-    const data = route.request().method() === 'POST' ? route.request().postDataJSON() : null;
-    const action = data?.action || url.searchParams.get('action');
-    if (action === 'login') { unlocked = true; return route.fulfill({ json: { unlocked: true } }); }
-    if (!unlocked) return route.fulfill({ status: 401, json: { error: 'Unlock your WhatsApp connection to continue.' } });
-    if (action === 'status') return route.fulfill({ json: { connected: waConnected, label: 'TEST account ending 1234', used: waDraft ? 1 : 0 } });
-    if (action === 'connect') { waConnected = true; return route.fulfill({ json: { connected: true } }); }
-    if (action === 'draft') { waDraft = true; return route.fulfill({ json: { reply: 'TEST WhatsApp draft', used: 1 } }); }
-    if (action === 'send') { assert.equal(data.approved, true); assert.equal(data.reply, 'TEST edited reviewed reply'); sendCalls++; waSent = true; return route.fulfill({ json: { sent: true, message: 'WhatsApp accepted the reply. Delivery is not yet confirmed.' } }); }
-    if (action === 'inbox') return route.fulfill({ json: { messages: [{ id: waId, message: 'TEST customer order question', received_at: new Date().toISOString(), can_reply: true, too_long: false, state: waSent ? 'sent' : waDraft ? 'draft' : 'new', sent_reply: waSent ? 'TEST edited reviewed reply' : null, draft: waDraft ? { reply: 'TEST WhatsApp draft', follow_up_action: 'TEST verify tracking' } : null }] } });
-    if (action === 'logout') { unlocked = false; return route.fulfill({ json: { unlocked: false } }); }
-  });
+  const beforePrototypeGenerations = generations;
+  let whatsappRequests = 0;
+  page.on('request', request => { if (new URL(request.url()).pathname.startsWith('/api/whatsapp')) whatsappRequests++; });
   await page.reload();
-  await page.locator('#wa-password').fill('TEST-owner-key');
-  await page.locator('#wa-login button').click();
-  await page.locator('#wa-connect').waitFor({ state: 'visible' });
-  await page.locator('#wa-business').selectOption('Clothing / Fashion');
-  await page.locator('#wa-connect button').click();
-  await page.locator('.wa-message').waitFor();
-  assert.equal(sendCalls, 0);
-  await page.locator('.wa-message button').click();
-  const sendButton = page.getByRole('button', { name: 'Send reviewed reply' });
-  await sendButton.waitFor();
+  await page.locator('#wa-prototype-connect').click();
+  await page.locator('#wa-connected').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('.wa-message').count(), 3);
+  assert.match(await page.locator('#wa-state').textContent(), /Demo connected/);
+  await page.locator('.wa-message').first().getByRole('button', { name: 'Show sample reply' }).click();
+  const sendButton = page.getByRole('button', { name: 'Simulate sending' });
   assert.equal(await sendButton.isDisabled(), true);
   await page.locator('.wa-approve input').check();
   assert.equal(await sendButton.isDisabled(), false);
@@ -96,12 +79,16 @@ try {
   await page.locator('.wa-approve input').check();
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  await page.screenshot({ path: 'test-results/whatsapp-mobile.png', fullPage: true });
+  await page.screenshot({ path: 'test-results/whatsapp-prototype-mobile.png', fullPage: true });
   await sendButton.click();
-  await page.locator('#wa-notice').filter({ hasText: 'accepted' }).waitFor();
-  assert.equal(sendCalls, 1);
-  await page.locator('#wa-lock').click();
-  await page.locator('#wa-login').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#wa-notice').textContent(), /Nothing was sent to WhatsApp/);
+  assert.equal(await page.getByRole('button', { name: 'Simulate sending' }).count(), 0);
+  await page.locator('#wa-reset-demo').click();
+  assert.equal(await page.getByRole('button', { name: 'Show sample reply' }).count(), 3);
+  await page.locator('#wa-disconnect').click();
+  assert.equal(await page.locator('#wa-prototype-connect').isVisible(), true);
   assert.equal(await page.locator('.wa-message').count(), 0);
-  console.info('Browser checks passed: input validation, generation/loading, copy, reset, persistent identity, API errors/cap, four responsive widths, and WhatsApp unlock/connect/draft/edit/approval/send/lock. API fixtures were mocked.');
+  assert.equal(whatsappRequests, 0);
+  assert.equal(generations, beforePrototypeGenerations);
+  console.info('Browser checks passed: input validation, generation/loading, copy, reset, persistent identity, API errors/cap, four responsive widths, and WhatsApp prototype connect/sample draft/edit/approval/simulated send/reset/disconnect without API calls. API fixtures were mocked.');
 } finally { await browser?.close(); child.kill(); }

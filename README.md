@@ -120,9 +120,17 @@ Logs identify the failure; they do not establish that missing credentials, quota
 
 Gemini generation initially uses the `v1beta` API, matching the official JavaScript client. On a 404 only, it retries once against the stable `v1` API with the same model, system prompt, JSON schema and 200-token cap. Both requests share one 35-second deadline. Other provider statuses are not retried. This compatibility fallback does not prove that a provider-side resource issue is resolved.
 
-## WhatsApp Business connection (owner-only)
+## WhatsApp prototype (current website)
 
-ReplyWise can connect to **one business account owned by the website operator** through Meta's official WhatsApp Cloud API. This is not a public signup service or a QR-code connection to a personal WhatsApp account. The existing website retains its single-page design and adds a private owner panel below the demo.
+The landing page's **Connect on WhatsApp** button now opens a functional **dummy-data prototype**. It shows three sample customer messages, loads preset sample drafts, supports editing and review approval, simulates sending, and lets you reset/disconnect the demo. All interactions stay in browser memory. The prototype makes no network calls, sends no real messages, creates no Supabase rows, and does not consume Gemini quota or the main tool's five-reply allowance. Refreshing the page resets the prototype. No WhatsApp/Meta credentials or owner access key are needed.
+
+This simulation is explicitly labelled **Prototype · dummy data**. The main **Generate my reply** tool and usage statistics continue to use the real Gemini/Supabase APIs.
+
+The live Cloud API backend below remains in the source for future use but is not invoked by the current prototype. Its SQL/credentials are optional and are not required to try the button. Automated browser checks verify zero WhatsApp API calls and no additional Gemini calls during the prototype interactions.
+
+## Optional live WhatsApp backend (not used by the prototype)
+
+ReplyWise can connect to **one business account owned by the website operator** through Meta's official WhatsApp Cloud API. This is not a public signup service or a QR-code connection to a personal WhatsApp account. This describes the earlier live integration. Its owner panel has been replaced by the current dummy-data prototype; restoring that private UI would be required to use the retained backend from the website.
 
 The workflow is **incoming text → owner requests AI draft → owner reviews/edits → owner explicitly approves → send through Cloud API**. Nothing is sent automatically. The UI reports Meta acceptance, not confirmed delivery; delivery/read-status webhooks are currently acknowledged but not tracked.
 
@@ -169,7 +177,7 @@ Use the public production website, not a localhost address or an access-protecte
 
 The GET challenge requires the correct verify token; every POST requires the correct HMAC-SHA256 signature using `META_APP_SECRET`. Invalid signatures are rejected before any data write. Vercel must allow Meta to reach this endpoint without deployment-protection authentication. All other owner actions require an owner session.
 
-### 5. Connect and test with your own phone
+### 5. Original live flow (requires restoring the owner panel)
 
 1. Open the landing page's **Bring ReplyWise to WhatsApp** section.
 2. Enter the `WHATSAPP_OWNER_PASSWORD` value into **Owner access key** and click **Unlock connection**. The server issues an eight-hour HttpOnly, SameSite=Strict cookie. The key is not stored in localStorage; locking clears private message cards and ends the session.
