@@ -119,3 +119,74 @@ In Vercel, open the project's Logs tab, submit a message, and find the line begi
 Logs identify the failure; they do not establish that missing credentials, quota or hosted database configuration have been fixed. Never share secret values or full provider bodies when seeking help.
 
 Gemini generation initially uses the `v1beta` API, matching the official JavaScript client. On a 404 only, it retries once against the stable `v1` API with the same model, system prompt, JSON schema and 200-token cap. Both requests share one 35-second deadline. Other provider statuses are not retried. This compatibility fallback does not prove that a provider-side resource issue is resolved.
+
+## WhatsApp Business connection (owner-only)
+
+ReplyWise can connect to **one business account owned by the website operator** through Meta's official WhatsApp Cloud API. This is not a public signup service or a QR-code connection to a personal WhatsApp account. The existing website retains its single-page design and adds a private owner panel below the demo.
+
+The workflow is **incoming text → owner requests AI draft → owner reviews/edits → owner explicitly approves → send through Cloud API**. Nothing is sent automatically. The UI reports Meta acceptance, not confirmed delivery; delivery/read-status webhooks are currently acknowledged but not tracked.
+
+### 1. Set up Meta / WhatsApp
+
+1. Visit https://developers.facebook.com/ and create a Meta developer app with the WhatsApp / business messaging use case. Add WhatsApp and open its API setup page. Meta's labels and eligibility requirements can change.
+2. For the first test, use Meta's provided **test business phone number** and add/verify an allowed recipient (your own phone). Copy the **Phone number ID**, not the phone number or WhatsApp Business Account ID.
+3. Obtain a Cloud API **access token**. Meta's getting-started token is temporary; for continued use, create a Business Manager system-user token with the necessary `whatsapp_business_messaging` and `whatsapp_business_management` permissions and grant it access to the WhatsApp assets. Follow Meta's current token lifecycle and business verification requirements.
+4. Find your app's **App Secret** in its basic settings. This verifies incoming webhook signatures. Do not confuse it with the access token or the verify token you create yourself.
+5. To use your real WhatsApp Business number, follow Meta's registration flow and account eligibility requirements. Do not delete or migrate your existing number casually. Using a number alongside the WhatsApp Business mobile app may require Meta's supported coexistence flow; this project does not implement Embedded Signup/coexistence onboarding. Start with the test number or a separately registered Cloud API number.
+
+### 2. Install the database extension
+
+In Supabase's SQL Editor run **`supabase/whatsapp.sql`** after the original `supabase/schema.sql`. Both are repeatable. The extension creates a single-account record, encrypted-recipient inbox, and login rate gate. Public browser roles have no access to these tables or functions.
+
+Do not rerun the original schema as a substitute for the extension: WhatsApp requires both files. Existing generation rows are preserved.
+
+### 3. Add server-only Vercel variables
+
+Use your Task 4 Vercel project's environment settings; select Production and the Preview environments you intend to test.
+
+| Variable | Value |
+|---|---|
+| `WHATSAPP_ACCESS_TOKEN` | Meta Cloud API access token; keep private |
+| `WHATSAPP_PHONE_NUMBER_ID` | Numeric Phone number ID from Meta's API setup |
+| `WHATSAPP_API_VERSION` | `v23.0` (central default; update to a supported Graph API version as needed) |
+| `META_APP_SECRET` | Your Meta developer app's App Secret; keep private |
+| `WHATSAPP_VERIFY_TOKEN` | A random private string you choose, at least 24 characters; use the same value in Meta's webhook settings |
+| `WHATSAPP_OWNER_PASSWORD` | A random owner-only access key of at least 24 characters; you enter this to unlock the private panel |
+| `WHATSAPP_ENCRYPTION_KEY` | Exactly 64 hexadecimal characters (32 random bytes), used to encrypt recipients and sign owner sessions |
+
+Keep the existing Gemini/Supabase variables. **None of these WhatsApp values belongs in frontend JavaScript or Git.** Generate each of the three random values separately on your own machine with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`; save them securely and never send them in chat. Do not execute that command in a shared log. The encryption key should remain stable: rotating it makes older encrypted destinations unreadable and invalidates owner sessions. Disconnect/delete the imported inbox before rotating it.
+
+Redeploy after saving variables. Adding variables to a completed deployment does not update its runtime.
+
+### 4. Register the webhook in Meta
+
+Use the public production website, not a localhost address or an access-protected Vercel preview.
+
+- **Callback URL:** `https://YOUR-TASK4-DOMAIN/api/whatsapp-webhook`
+- **Verify token:** the same value you saved as `WHATSAPP_VERIFY_TOKEN`
+- Click **Verify and save**.
+- Subscribe to the **messages** webhook field. Ensure the app is subscribed to your WhatsApp Business Account (for system-user setups Meta provides `POST /{WABA-ID}/subscribed_apps`; use Meta's official tools and permissions).
+
+The GET challenge requires the correct verify token; every POST requires the correct HMAC-SHA256 signature using `META_APP_SECRET`. Invalid signatures are rejected before any data write. Vercel must allow Meta to reach this endpoint without deployment-protection authentication. All other owner actions require an owner session.
+
+### 5. Connect and test with your own phone
+
+1. Open the landing page's **Bring ReplyWise to WhatsApp** section.
+2. Enter the `WHATSAPP_OWNER_PASSWORD` value into **Owner access key** and click **Unlock connection**. The server issues an eight-hour HttpOnly, SameSite=Strict cookie. The key is not stored in localStorage; locking clears private message cards and ends the session.
+3. Choose your business type and click **Connect WhatsApp Business**. The server verifies the configured phone with Meta before activating the account. It does not merely toggle a frontend flag.
+4. From your verified test recipient, send a new text to the connected business number. Click **Refresh messages**. Existing WhatsApp history is not imported; media and other non-text messages are ignored.
+5. Click **Draft my reply**. The same Gemini safety prompt and 200-token cap apply. Drafts are atomically saved to `replywise_requests` and the private inbox. This connection has **five successful demo drafts total**, tied to a stable server-generated anonymous ID. Disconnecting does not reset that limit. Sending uses no additional AI request. Main browser-demo quota is separate.
+6. Review/edit the reply and check **I checked the facts and approve sending this reply to the customer**. Editing unchecks approval. Click **Send reviewed reply** only when ready. Test first with your own phone; verify that you actually receive it.
+7. Free-form sends are allowed only within **24 hours** of the received customer message. The backend checks the window and reserves the send atomically. Templates / outbound business-initiated messages are not implemented. Cloud API pricing and business messaging policies still apply.
+
+### Privacy, retention and retry behavior
+
+- No contact names are stored. Sender numbers are AES-256-GCM encrypted before insertion, never returned by inbox APIs, and decrypted only server-side for sending. Obvious phone/email patterns in customer text, generated drafts and stored sent text are redacted. Other sensitive content may remain; disclose Gemini processing / Supabase storage to testers and use appropriate consent and retention practices for your business.
+- Inbox rows older than **seven days** are deleted on message receipt or inbox refresh; this is activity-driven cleanup, not a scheduled deletion guarantee. Successful generation history remains in `replywise_requests` until you delete it separately.
+- Webhook message IDs are deduplicated. One owner-account AI request can be in flight at a time. Sending is locked per message; double-clicks cannot produce duplicate calls. A timeout, connection loss or uncertain provider response marks `send_unknown` and blocks retries because Meta may already have accepted the message. Check WhatsApp manually; the app does not guess or automatically resend.
+- **Disconnect** deactivates ReplyWise ingestion/sending and deletes imported inbox messages/encrypted recipients. It retains usage records and does not revoke your Meta token or remove Meta's webhook subscription; remove the subscription in Meta if required.
+- Owner login allows ten attempts per fifteen-minute global window using Supabase. A strong randomly generated owner key is required. This is single-owner access protection, not customer authentication or multi-tenant authorization.
+
+### Verification and limitations
+
+Backend and PostgreSQL tests cover owner sessions, CSRF rejection, raw webhook signatures, duplicate events, redaction/encryption, quotas, approval, 24-hour restrictions and send idempotency. Browser checks use labelled fixtures to exercise the owner panel. **A live Meta connection, receipt and actual delivery have not been verified without your Meta credentials and business account.** No real WhatsApp message has been sent during automated tests.
